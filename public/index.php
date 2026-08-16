@@ -70,8 +70,15 @@ $pages = $paginator->getPages(length: 3);
                   <a href="<?= '/edit.php?id=' . $contact->id ?>"
                     class="btn btn-xs btn-warning">
                     <i alt="Edit" class="fa fa-pencil"></i> Edit</a>
-                  <a href="#" class="btn btn-xs btn-danger ms-1">
-                    <i alt="Delete" class="fa fa-trash"></i> Delete</a>
+                  <form class="ms-1" action="/delete.php" method="POST">
+                    <input type="hidden" name="id"
+                      value="<?= $contact->id ?>">
+                    <button type="submit"
+                      class="btn btn-xs btn-danger"
+                      name="delete-contact">
+                      <i alt="Delete" class="fa fa-trash"></i> Delete
+                    </button>
+                  </form>
                 </td>
               </tr>
             <?php endforeach ?>
@@ -130,6 +137,42 @@ $pages = $paginator->getPages(length: 3);
 
   <?php include_once __DIR__ . '/../src/partials/footer.php' ?>
   <script>
+    const deleteButtons = document.querySelectorAll('button[name="delete-contact"]');
+
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        const form = button.closest('form');
+        const nameTd = button.closest('tr').querySelector('td:first-child');
+
+        if (nameTd) {
+          document.querySelector('.modal-body').textContent =
+            `Do you want to delete "${nameTd.textContent}"?`;
+        }
+
+        const submitForm = function() {
+          form.submit();
+        };
+
+        document.getElementById('delete').addEventListener('click', submitForm, {
+          once: true
+        });
+
+        const modalEl = document.getElementById('delete-confirm');
+
+        modalEl.addEventListener('hidden.bs.modal', function() {
+          document.getElementById('delete').removeEventListener('click', submitForm);
+        });
+
+        const confirmModal = new bootstrap.Modal(modalEl, {
+          backdrop: 'static',
+          keyboard: false
+        });
+
+        confirmModal.show();
+      });
+    });
   </script>
 </body>
 
